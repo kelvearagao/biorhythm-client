@@ -3,8 +3,16 @@ import Chart from "chart.js"
 import "chartjs-plugin-annotation"
 import moment from "moment"
 import ProgressBar from "progressbar.js"
+import { getRate, getBirthDate, calcDays, calcRitimo } from "utils/calc"
 
 export default function() {
+  const [persons, setPersons] = useState(
+    JSON.parse(localStorage.getItem("persons")) || []
+  )
+  const [selectedPerson, setSelectedPerson] = useState(null)
+
+  const [name, setName] = useState("")
+
   const handleBirthDateChange = value => {
     if (moment(value).isValid()) {
       localStorage.setItem("birthDate", value)
@@ -13,26 +21,34 @@ export default function() {
     setBirthDate(value)
   }
 
-  const getRate = (birthDate, targetDate, ritimo) => {
-    const days = calcDays(birthDate, targetDate)
-    const rate = calcRitimo(days, ritimo)
+  const handleSelectPerson = value => {
+    if (!value) {
+      return
+    }
 
-    return rate
+    const p = persons[value]
+
+    setSelectedPerson(p)
+    setName(p.name)
+    setBirthDate(p.birthDate)
   }
 
-  const getBirthDate = () => {
-    const date = localStorage.getItem("birthDate") || ""
-    return date
+  const handleAdd = ({ name, birthDate, targetDate }) => {
+    if (!name || !birthDate || !targetDate) {
+      return
+    }
+
+    const persons = JSON.parse(localStorage.getItem("persons")) || []
+
+    persons.push({
+      name,
+      birthDate
+    })
+
+    localStorage.setItem("persons", JSON.stringify(persons))
+
+    setPersons(persons)
   }
-
-  const calcDays = (birthDate, targetDate) => {
-    const start = moment(birthDate)
-    const end = moment(targetDate)
-
-    return moment.duration(end.diff(start)).asDays()
-  }
-
-  const calcRitimo = (days, ritimo) => Math.sin((2 * Math.PI * days) / ritimo)
 
   const getLabels = targetDate => {
     const days = window.matchMedia("(min-width: 420px)") ? 30 : 30
@@ -142,8 +158,6 @@ export default function() {
       }
     })
 
-    console.log(myChart)
-
     return () => {
       myChart.destroy()
     }
@@ -208,6 +222,13 @@ export default function() {
         }}
       >
         <h1>Biorítmo</h1>
+        <select onChange={e => handleSelectPerson(e.target.value)}>
+          <option value="">Selecionar pessoa</option>
+          {persons.map((p, index) => (
+            <option value={index}>{p.name}</option>
+          ))}
+        </select>
+        <br />
         <div
           style={{
             padding: "0 10px",
@@ -232,6 +253,18 @@ export default function() {
             />
           </label>
         </div>
+
+        <br />
+
+        <input
+          type="text"
+          onChange={e => setName(e.target.value)}
+          value={name}
+        />
+        <br />
+        <button onClick={() => handleAdd({ name, birthDate, targetDate })}>
+          Add
+        </button>
       </section>
 
       <br />
