@@ -78,6 +78,16 @@ export default function() {
     return data
   }
 
+  const getTotal = list => {
+    const total = []
+
+    for (let i = 0; i < list[0].length; i++) {
+      total.push(list.reduce((acc, item) => acc + item[i], 0) / list.length)
+    }
+
+    return total
+  }
+
   const [birthDate, setBirthDate] = useState(getBirthDate())
   const [targetDate, setTargetDate] = useState(moment().format("YYYY-MM-DD"))
 
@@ -86,6 +96,7 @@ export default function() {
     const fisico = getDataSet(birthDate, targetDate, 23)
     const emocional = getDataSet(birthDate, targetDate, 28)
     const intelectual = getDataSet(birthDate, targetDate, 33)
+    const total = getTotal([fisico, emocional, intelectual])
 
     const ctx = document.getElementById("myChart")
 
@@ -113,6 +124,13 @@ export default function() {
             label: "Intelectual",
             data: intelectual,
             borderColor: "green",
+            borderWidth: 1,
+            fill: false
+          },
+          {
+            label: "Total",
+            data: total,
+            borderColor: "purple",
             borderWidth: 1,
             fill: false
           }
