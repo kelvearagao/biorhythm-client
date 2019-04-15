@@ -4,6 +4,7 @@ import "chartjs-plugin-annotation"
 import moment from "moment"
 import ProgressBar from "progressbar.js"
 import { getRate, getBirthDate, calcDays, calcRitimo } from "utils/calc"
+import Advice from "components/advice"
 
 export default function() {
   const [persons, setPersons] = useState(
@@ -128,7 +129,7 @@ export default function() {
             fill: false
           },
           {
-            label: "Total",
+            label: "Média",
             data: total,
             borderColor: "purple",
             borderWidth: 1,
@@ -193,7 +194,7 @@ export default function() {
         width: "100px"
       },*/
       text: {
-        value: `${fisicoRate.toFixed(1)} %`
+        value: `${Math.trunc(fisicoRate * 100)} %`
       }
       //trackColor: "blue"
     })
@@ -204,8 +205,9 @@ export default function() {
     const emocionalPie = new ProgressBar.Circle(emocionalElement, {
       color: "orange",
       trailColor: "#f4f4f4",
+      strokeWidth: 2,
       text: {
-        value: `${emocionalRate.toFixed(1)} %`
+        value: `${Math.trunc(emocionalRate * 100)} %`
       }
       //trackColor: "blue"
     })
@@ -216,8 +218,9 @@ export default function() {
     const intelectualPie = new ProgressBar.Circle(intelectualElement, {
       color: "green",
       trailColor: "#f4f4f4",
+      strokeWidth: 2,
       text: {
-        value: `${intelectualRate.toFixed(1)} %`
+        value: `${Math.trunc(intelectualRate * 100)} %`
       }
       //trackColor: "blue"
     })
@@ -231,7 +234,7 @@ export default function() {
   }, [birthDate, targetDate])
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ height: "100vh" }}>
       <section
         style={{
           display: "flex",
@@ -240,13 +243,7 @@ export default function() {
         }}
       >
         <h1>Biorítmo</h1>
-        <select onChange={e => handleSelectPerson(e.target.value)}>
-          <option value="">Selecionar pessoa</option>
-          {persons.map((p, index) => (
-            <option value={index}>{p.name}</option>
-          ))}
-        </select>
-        <br />
+
         <div
           style={{
             padding: "0 10px",
@@ -283,6 +280,16 @@ export default function() {
         <button onClick={() => handleAdd({ name, birthDate, targetDate })}>
           Add
         </button>
+
+        <br />
+        <select onChange={e => handleSelectPerson(e.target.value)}>
+          <option value="">Selecionar pessoa</option>
+          {persons.map((p, index) => (
+            <option key={p.name} value={index}>
+              {p.name}
+            </option>
+          ))}
+        </select>
       </section>
 
       <br />
@@ -299,29 +306,40 @@ export default function() {
         <canvas id="myChart" />
       </div>
 
-      <div style={{ display: "flex", flex: 1 }}>
+      <div
+        style={{
+          margin: "0 auto",
+          maxWidth: "400px",
+          display: "flex",
+          flex: 1
+        }}
+      >
         <div
           style={{
             padding: "0 10px"
           }}
         >
-          <div class="chart" id="fisico" />
+          <div className="chart" id="fisico" />
         </div>
         <div
           style={{
             padding: "0 10px"
           }}
         >
-          <div class="chart" id="emocional" />
+          <div className="chart" id="emocional" />
         </div>
         <div
           style={{
             padding: "0 10px"
           }}
         >
-          <div class="chart" id="intelectual" />
+          <div className="chart" id="intelectual" />
         </div>
       </div>
+
+      <section>
+        <Advice birthDate={birthDate} targetDate={targetDate} />
+      </section>
     </div>
   )
 }
